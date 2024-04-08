@@ -4,6 +4,10 @@ import System.IO
 import System.Environment (getArgs, withArgs)
 import System.Directory (doesFileExist)
 
+import qualified Parser
+import qualified Code
+import qualified SymbolTable
+
 processFile :: String -> IO ()
 processFile filename = do
     fileExists <- doesFileExist filename
