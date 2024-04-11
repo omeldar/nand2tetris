@@ -3,9 +3,10 @@ module Parser (
 ) where
 
 parse :: String -> String
-parse contents = parseContents (lines contents) []
+parse contents = unlines $ parseContents (lines contents) []
 
-parseContents :: [String] -> [String]
+parseContents :: [String] -> [String] -> [String]
 parseContents [] parsed = parsed
-parseContents lines parsed = 
+parseContents (line:lines) parsed = parseContents lines (parsed ++ [newLineContent])
+    newLineContent = line
 
