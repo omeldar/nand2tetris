@@ -2,4 +2,10 @@ module Parser (
     parse
 ) where
 
-parse = putStrLn "to be implemented"
+parse :: String -> String
+parse contents = parseContents (lines contents) []
+
+parseContents :: [String] -> [String]
+parseContents [] parsed = parsed
+parseContents lines parsed = 
+

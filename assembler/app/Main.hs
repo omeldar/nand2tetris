@@ -4,7 +4,7 @@ import System.IO
 import System.Environment (getArgs, withArgs)
 import System.Directory (doesFileExist)
 
-import qualified Parser
+import qualified Parser (parse)
 import qualified Code
 import qualified SymbolTable
 
@@ -14,8 +14,7 @@ processFile filename = do
     if fileExists
         then do
             content <- readFile filename
-            putStrLn "File content:"
-            putStrLn content
+            putStrLn $ Parser.parse content
         else putStrLn $ "File " ++ filename ++ " does not exist."
 
 handleArgs :: [String] -> IO ()
