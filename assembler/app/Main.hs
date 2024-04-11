@@ -1,6 +1,5 @@
 module Main where
 
-import System.IO
 import System.Environment (getArgs, withArgs)
 import System.Directory (doesFileExist)
 
