@@ -3,17 +3,17 @@ module Main where
 import System.Environment (getArgs, withArgs)
 import System.Directory (doesFileExist)
 
-import qualified Parser (parse)
+import qualified Parser (extractLabels, purify)
 import qualified Code
-import qualified SymbolTable
+import qualified Types as T
 
 processFile :: String -> IO ()
 processFile filename = do
     fileExists <- doesFileExist filename
     if fileExists
         then do
-            content <- readFile filename
-            putStrLn $ Parser.parse content
+            content <- Parser.purify $ readFile filename
+            assemble content
         else putStrLn $ "File " ++ filename ++ " does not exist."
 
 handleArgs :: [String] -> IO ()
@@ -24,6 +24,13 @@ handleArgs args = case args of
 
 main :: IO ()
 main = getArgs >>= handleArgs
+
+assemble :: String -> IO ()
+assemble content = do
+    print $ getLabels content
+
+getLabels :: String -> T.SymbolTable
+getLabels content = Parser.extractLabels $ lines content
 
 -- helper method used for testing and working with ghci
 testMain :: [String] -> IO ()
