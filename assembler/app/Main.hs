@@ -31,7 +31,7 @@ assemble content =
     let labels = getLabels content
     in print $ show labels
 
-getLabels :: [String] -> T.SymbolTable
+getLabels :: [String] -> T.SymbolMap
 getLabels content = Parser.extractLabels content
 
 testMain :: [String] -> IO ()
