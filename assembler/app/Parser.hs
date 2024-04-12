@@ -5,18 +5,23 @@ module Parser (
 
 import Data.Maybe (catMaybes)
 import Data.Char
+import Data.List (isPrefixOf)
 
 import qualified Types as T
 import qualified Data.Map as M
 
+-- exposed functions
+
 extractLabels :: [String] -> T.SymbolTable
 extractLabels lines =
-    let labeledLines = catMaybes $ zipWith (\lineNumber line -> fmap (\(label, _) -> (label, lineNumber + 1)) (parseLabel line)) [0..] lines
+    let labeledLines = catMaybes $ zipWith (\lineNumber line -> fmap (\(label, _) -> (label, lineNumber + 1)) (parseLabel line)) [1..] lines
     in M.fromList labeledLines
 
 purify :: [String] -> [String]
 purify = filter (not . isCommentOrEmpty)
     where isCommentOrEmpty line = isComment line || isEmptyLine line
+
+-- private and helper functions
 
 parseLabel :: String -> Maybe (T.Label, T.LineNumber)
 parseLabel line = case words line of

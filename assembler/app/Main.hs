@@ -4,7 +4,6 @@ import System.Environment (getArgs, withArgs)
 import System.Directory (doesFileExist)
 
 import qualified Parser (extractLabels, purify)
-import qualified Code
 import qualified Types as T
 
 processFile :: String -> IO ()
@@ -12,9 +11,11 @@ processFile filename = do
     fileExists <- doesFileExist filename
     if fileExists
         then do
-            content <- Parser.purify $ readFile filename
-            assemble content
-        else putStrLn $ "File " ++ filename ++ " does not exist."
+            contents <- readFile filename
+            let purifiedLines = Parser.purify $ lines contents
+            assemble purifiedLines
+        else
+            putStrLn $ "File " ++ filename ++ " does not exist."
 
 handleArgs :: [String] -> IO ()
 handleArgs args = case args of
@@ -25,13 +26,13 @@ handleArgs args = case args of
 main :: IO ()
 main = getArgs >>= handleArgs
 
-assemble :: String -> IO ()
-assemble content = do
-    print $ getLabels content
+assemble :: [String] -> IO ()
+assemble content =
+    let labels = getLabels content
+    in print $ show labels
 
-getLabels :: String -> T.SymbolTable
-getLabels content = Parser.extractLabels $ lines content
+getLabels :: [String] -> T.SymbolTable
+getLabels content = Parser.extractLabels content
 
--- helper method used for testing and working with ghci
 testMain :: [String] -> IO ()
 testMain args = withArgs args main
