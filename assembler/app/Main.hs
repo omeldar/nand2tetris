@@ -32,7 +32,7 @@ assemble content =
     in print $ show labels
 
 getLabels :: [String] -> T.SymbolMap
-getLabels content = Parser.extractLabels content
+getLabels = Parser.extractLabels
 
 testMain :: [String] -> IO ()
 testMain args = withArgs args main
