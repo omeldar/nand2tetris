@@ -4,6 +4,7 @@ import System.Environment (getArgs, withArgs)
 import System.Directory (doesFileExist)
 
 import qualified Parser (extractLabels, purify)
+import qualified SymbolTable (createSymbolTable)
 import qualified Types as T
 
 processFile :: String -> IO ()
@@ -29,7 +30,10 @@ main = getArgs >>= handleArgs
 assemble :: [String] -> IO ()
 assemble content =
     let labels = getLabels content
-    in print $ show labels
+        symbols = SymbolTable.createSymbolTable
+    in do
+        print $ show labels
+        print $ show symbols
 
 getLabels :: [String] -> T.SymbolMap
 getLabels = Parser.extractLabels
