@@ -1,10 +1,8 @@
 module Code (
-    encodeAInstruction,
-    encodeCInstruction
+    translate
 ) where
 
-encodeAInstruction :: IO ()
-encodeAInstruction = putStrLn "to be implemented"
+import qualified Types as T
 
-encodeCInstruction :: IO ()
-encodeCInstruction = putStrLn "to be implemented"
+translate :: SymbolTable -> [String] -> String
+translate symbols contents = "test"
