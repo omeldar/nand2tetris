@@ -1,8 +1,4 @@
-module Types (
-    Label,
-    LineNumber,
-    SymbolMap
-) where
+module Types where
 
 import qualified Data.Map as M
 
@@ -12,3 +8,4 @@ type LineNumber = Int
 type Symbol = String
 type Address = Int
 type SymbolTable = M.Map Symbol Address
+type LabelMap = M.Map Symbol Address

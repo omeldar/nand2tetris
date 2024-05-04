@@ -1,8 +1,7 @@
 module SymbolTable (
     createSymbolTable,
     add,
-    getRegister,
-    exists
+    getRegister
 ) where
 
 import qualified Data.Map as M
@@ -20,15 +19,13 @@ createSymbolTable = M.fromList $ createRIntRegisters ++ [
     ]
 
 add :: T.SymbolTable -> T.Symbol -> T.SymbolTable
-add currentTable newItem = 
+add currentTable newSymbol = 
     let maxReg = maximum . filter (< 16384) . M.elems $ currentTable
         nextAddress = maxReg + 1
-    in M.insert (symbol, nextAddress) currentTable
+    in M.insert newSymbol nextAddress currentTable
 
 getRegister :: T.SymbolTable -> T.Symbol -> Maybe T.Address
 getRegister table symbol = M.lookup symbol table
-
-
 
 -- non-exposed functions
 

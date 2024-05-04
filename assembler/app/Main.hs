@@ -4,7 +4,7 @@ import System.Environment (getArgs, withArgs)
 import System.Directory (doesFileExist)
 
 import qualified Parser (extractLabels, purify)
-import qualified SymbolTable (createSymbolTable, exists)
+import qualified SymbolTable (createSymbolTable)
 import qualified Types as T
 import qualified Code (translate)
 
@@ -32,21 +32,15 @@ assemble :: [String] -> IO ()
 assemble content =
     let labels = getLabels content
         symbols = SymbolTable.createSymbolTable
+        binary = Code.translate symbols labels content []
     in do
         print $ show labels
         print $ show symbols
+        print "---"
+        print $ length binary
+        print $ show binary
 
---translate :: [String] -> [String] -> T.SymbolTable -> [String]
---translate [] binaryLines _ = binaryLines
---translate (assLine:assemblyLines) binaryLines symbols
---    | isVariable = translate assemblyLines binaryLines newSymbols
---    | otherwise = translate assemblyLines newBinaryLines symbols
---    where
---        newSymbols = SymbolTable.add symbols $ Parser.toVariable assLine    -- TODO: implement toVariable which removes @ in front of it and adds it here
---        newBinaryLines = binaryLines ++ [Code.translate assLine]            -- TODO: implement translate
---        isVariable = Parser.isVariable
-
-getLabels :: [String] -> T.SymbolMap
+getLabels :: [String] -> T.SymbolTable
 getLabels = Parser.extractLabels
 
 testMain :: [String] -> IO ()

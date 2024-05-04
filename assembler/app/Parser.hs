@@ -12,7 +12,7 @@ import qualified Data.Map as M
 
 -- exposed functions
 
-extractLabels :: [String] -> T.SymbolMap
+extractLabels :: [String] -> T.SymbolTable
 extractLabels contentLines =
     let labeledLines = catMaybes $ zipWith (\lineNumber line -> fmap (\(label, _) -> (label, lineNumber + 1)) (parseLabel line)) [1..] contentLines
     in M.fromList labeledLines
