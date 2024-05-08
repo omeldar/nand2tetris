@@ -37,7 +37,6 @@ assemble content =
         print $ show labels
         print $ show symbols
         print "---"
-        print $ length binary
         print $ show binary
 
 getLabels :: [String] -> T.SymbolTable
