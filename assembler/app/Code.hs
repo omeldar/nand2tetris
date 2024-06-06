@@ -7,7 +7,7 @@ import Data.Char (isDigit)
 import qualified Types as T
 import qualified Data.Map as M
 
-import Debug.Trace (trace)
+import Debug.Trace (trace) -- delete later
 
 translate :: T.SymbolTable -> T.LabelMap -> [String] -> [String] -> [String]
 translate _ _ [] binary = binary

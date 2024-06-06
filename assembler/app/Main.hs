@@ -34,10 +34,9 @@ assemble content =
         symbols = SymbolTable.createSymbolTable
         binary = Code.translate symbols labels content []
     in do
-        print $ show labels
-        print $ show symbols
-        print "---"
-        print $ show binary
+        print $ "labels: " ++ show labels
+        print $ "symbols: " ++ show symbols
+        print $ "result: " ++ show binary
 
 getLabels :: [String] -> T.SymbolTable
 getLabels = Parser.extractLabels

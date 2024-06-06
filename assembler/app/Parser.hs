@@ -3,7 +3,6 @@ module Parser (
     purify
 ) where
 
-import Data.Maybe (catMaybes)
 import Data.Char
 import Data.List (isPrefixOf)
 
@@ -12,10 +11,17 @@ import qualified Data.Map as M
 
 -- exposed functions
 
-extractLabels :: [String] -> T.SymbolTable
-extractLabels contentLines =
-    let labeledLines = catMaybes $ zipWith (\lineNumber line -> fmap (\(label, _) -> (label, lineNumber + 1)) (parseLabel line)) [1..] contentLines
-    in M.fromList labeledLines
+extractLabels :: [String] -> T.LabelMap
+extractLabels contentLines = M.fromList $ collectLabels contentLines 0 0
+  where
+    collectLabels [] _ _ = []
+    collectLabels (line:lines) lineNumber instructionAddress
+        | isLabel line = case parseLabel line of
+            Just label -> (label, instructionAddress) : collectLabels lines (lineNumber + 1) instructionAddress
+            Nothing -> collectLabels lines (lineNumber + 1) instructionAddress
+        | otherwise = collectLabels lines (lineNumber + 1) (instructionAddress + 1)
+
+    isLabel line = head line == '(' && last line == ')'
 
 purify :: [String] -> [String]
 purify = filter (not . isCommentOrEmpty) . map trim
@@ -23,10 +29,10 @@ purify = filter (not . isCommentOrEmpty) . map trim
 
 -- private and helper functions
 
-parseLabel :: String -> Maybe (T.Label, T.LineNumber)
-parseLabel line = case words line of
-    ['(':label] -> Just (init label, 0)
-    _ -> Nothing
+parseLabel :: String -> Maybe T.Label
+parseLabel line
+    | head line == '(' && last line == ')' = Just (init (tail line))  -- Remove '(' and ')'
+    | otherwise = Nothing
 
 isComment :: String -> Bool
 isComment line = "//" `isPrefixOf` dropWhile isSpace line
