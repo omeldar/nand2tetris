@@ -18,7 +18,7 @@ extractLabels contentLines =
     in M.fromList labeledLines
 
 purify :: [String] -> [String]
-purify = filter (not . isCommentOrEmpty)
+purify = filter (not . isCommentOrEmpty) . map trim
     where isCommentOrEmpty line = isComment line || isEmptyLine line
 
 -- private and helper functions
@@ -33,3 +33,7 @@ isComment line = "//" `isPrefixOf` dropWhile isSpace line
 
 isEmptyLine :: String -> Bool
 isEmptyLine = all isSpace
+
+trim :: String -> String
+trim = f . f
+    where f = reverse . dropWhile isSpace

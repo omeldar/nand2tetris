@@ -16,7 +16,7 @@ translate symbols labels (line:rest) binary = translate symbols labels rest newB
 translateLine :: T.SymbolTable -> T.LabelMap -> String -> String
 translateLine symbols labels line
     | isAInstruction line = translateAInstruction labels line
-    | otherwise = "c-instr" -- translateCInstruction symbols labels line  -- when implemented
+    | otherwise = "c-instr: " ++ line  -- translateCInstruction symbols labels line  -- when implemented
     where
         isAInstruction :: String -> Bool
         isAInstruction ('@':_) = True
@@ -25,7 +25,7 @@ translateLine symbols labels line
 translateAInstruction :: T.LabelMap -> String -> String
 translateAInstruction labels line = case parseAInstruction labels line of
     Just address -> intToBinary address
-    Nothing -> error "Invalid A-instruction format"
+    Nothing -> error "Invalid A-instruction format: " ++ line
 
 parseAInstruction :: T.LabelMap -> String -> Maybe Int
 parseAInstruction labels ('@':rest)
@@ -34,11 +34,12 @@ parseAInstruction labels ('@':rest)
 parseAInstruction _ _ = Nothing
 
 intToBinary :: Int -> String
-intToBinary x = replicate (15 - length bin) '0' ++ bin
+intToBinary x = replicate (16 - length bin) '0' ++ bin
     where
         bin = toBinary x
 
-
 toBinary :: Int -> String
-toBinary 0 = ""
-toBinary n = toBinary (n `div` 2) ++ show (n `mod` 2)
+toBinary 0 = "0"
+toBinary n
+    | n > 0 = toBinary (n `div` 2) ++ show (n `mod` 2)
+    | otherwise = error "Negative numbers cannot be converted to binary"
