@@ -7,6 +7,8 @@ import Data.Char (isDigit)
 import qualified Types as T
 import qualified Data.Map as M
 
+import Debug.Trace (trace)
+
 translate :: T.SymbolTable -> T.LabelMap -> [String] -> [String] -> [String]
 translate _ _ [] binary = binary
 translate symbols labels (line:rest) binary = translate symbols labels rest newBinary
@@ -17,7 +19,7 @@ translateLine :: T.SymbolTable -> T.LabelMap -> String -> String
 translateLine symbols labels line
     | isAInstruction line = translateAInstruction labels line
     | isCInstruction line = translateCInstruction line
-    | otherwise = "c-instr: " ++ line  -- translateCInstruction symbols labels line  -- when implemented
+    | otherwise = error "Invalid instruction found: '" ++ line ++ "'"
 
 isAInstruction :: String -> Bool
 isAInstruction ('@':_) = True
@@ -46,10 +48,13 @@ translateCInstruction line = "111" ++ compBits ++ destBits ++ jumpBits
         jumpBits = jumpMap M.! jump
 
 parseCInstruction :: String -> (String, String, String)
-parseCInstruction line = (comp, dest, jump)
+parseCInstruction line = (comp, dest', jump')
     where
         (destComp, jump) = break (== ';') line
-        (dest, comp) = break (== '=') destComp
+        (dest, comp') = break (== '=') destComp
+        comp = if null comp' then destComp else tail comp' -- to remove the '=' if present
+        dest' = if null comp' then "null" else dest -- set dest to "null" if '=' is missing
+        jump' = if null jump then "null" else tail jump -- to remove the ';' if present
 
 intToBinary :: Int -> String
 intToBinary x = replicate (16 - length bin) '0' ++ bin
