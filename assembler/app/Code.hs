@@ -7,8 +7,6 @@ import Data.Char (isDigit)
 import qualified Types as T
 import qualified Data.Map as M
 
-import Debug.Trace (trace) -- delete later
-
 translate :: T.SymbolTable -> T.LabelMap -> [String] -> [String] -> Int -> [String]
 translate _ _ [] binary _ = reverse binary
 translate symbols labels (line:rest) binary nextAddress =

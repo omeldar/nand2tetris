@@ -15,7 +15,7 @@ processFile filename = do
         then do
             contents <- readFile filename
             let purifiedLines = Parser.purify $ lines contents
-            assemble purifiedLines
+            assemble purifiedLines filename
         else
             putStrLn $ "File " ++ filename ++ " does not exist."
 
@@ -28,18 +28,23 @@ handleArgs args = case args of
 main :: IO ()
 main = getArgs >>= handleArgs
 
-assemble :: [String] -> IO ()
-assemble content =
+assemble :: [String] -> String -> IO ()
+assemble content filename =
     let labels = getLabels content
         symbols = SymbolTable.createSymbolTable
         binary = Code.translate symbols labels content [] 16
     in do
-        print $ "labels: " ++ show labels
-        print $ "symbols: " ++ show symbols
-        print $ "result: " ++ show binary
+        writeFile (createOutPath filename) (unlines binary)
+        print $ "Binary output written to " ++ createOutPath filename
 
 getLabels :: [String] -> T.SymbolTable
 getLabels = Parser.extractLabels
 
+createOutPath :: String -> String
+createOutPath filename = baseName ++ ".hack"
+  where
+    baseName = reverse . drop 1 . dropWhile (/= '.') . reverse $ filename
+
+-- used when testing within ghci
 testMain :: [String] -> IO ()
 testMain args = withArgs args main

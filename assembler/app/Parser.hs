@@ -14,12 +14,13 @@ import qualified Data.Map as M
 extractLabels :: [String] -> T.LabelMap
 extractLabels contentLines = M.fromList $ collectLabels contentLines 0 0
   where
+    collectLabels :: [String] -> Int -> Int -> [(T.Label, Int)]
     collectLabels [] _ _ = []
-    collectLabels (line:lines) lineNumber instructionAddress
+    collectLabels (line:rest) lineNumber instructionAddress
         | isLabel line = case parseLabel line of
-            Just label -> (label, instructionAddress) : collectLabels lines (lineNumber + 1) instructionAddress
-            Nothing -> collectLabels lines (lineNumber + 1) instructionAddress
-        | otherwise = collectLabels lines (lineNumber + 1) (instructionAddress + 1)
+            Just label -> (label, instructionAddress) : collectLabels rest (lineNumber + 1) instructionAddress
+            Nothing -> collectLabels rest (lineNumber + 1) instructionAddress
+        | otherwise = collectLabels rest (lineNumber + 1) (instructionAddress + 1)
 
     isLabel line = head line == '(' && last line == ')'
 
