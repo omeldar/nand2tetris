@@ -32,7 +32,7 @@ assemble :: [String] -> IO ()
 assemble content =
     let labels = getLabels content
         symbols = SymbolTable.createSymbolTable
-        binary = Code.translate symbols labels content []
+        binary = Code.translate symbols labels content [] 16
     in do
         print $ "labels: " ++ show labels
         print $ "symbols: " ++ show symbols

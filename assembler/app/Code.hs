@@ -9,17 +9,21 @@ import qualified Data.Map as M
 
 import Debug.Trace (trace) -- delete later
 
-translate :: T.SymbolTable -> T.LabelMap -> [String] -> [String] -> [String]
-translate _ _ [] binary = binary
-translate symbols labels (line:rest) binary = translate symbols labels rest newBinary
-    where
-        newBinary = binary ++ [translateLine symbols labels line]
+translate :: T.SymbolTable -> T.LabelMap -> [String] -> [String] -> Int -> [String]
+translate _ _ [] binary _ = reverse binary
+translate symbols labels (line:rest) binary nextAddress =
+    let (newBinary, newSymbols, newNextAddress) = translateLine symbols labels line binary nextAddress
+    in translate newSymbols labels rest newBinary newNextAddress
 
-translateLine :: T.SymbolTable -> T.LabelMap -> String -> String
-translateLine symbols labels line
-    | isAInstruction line = translateAInstruction labels line
-    | isCInstruction line = translateCInstruction line
-    | otherwise = error "Invalid instruction found: '" ++ line ++ "'"
+translateLine :: T.SymbolTable -> T.LabelMap -> String -> [String] -> Int -> ([String], T.SymbolTable, Int)
+translateLine symbols labels line binary nextAddress
+    | isAInstruction line = 
+        let (translated, newSymbols, newNextAddress) = translateAInstruction symbols labels line nextAddress
+        in (binary ++ [translated], newSymbols, newNextAddress)
+    | isCInstruction line = 
+        let translated = translateCInstruction line
+        in (binary ++ [translated], symbols, nextAddress)
+    | otherwise = error $ "Invalid instruction found: '" ++ line ++ "'"
 
 isAInstruction :: String -> Bool
 isAInstruction ('@':_) = True
@@ -28,16 +32,22 @@ isAInstruction _ = False
 isCInstruction :: String -> Bool
 isCInstruction line = not (null line) && head line /= '@'
 
-translateAInstruction :: T.LabelMap -> String -> String
-translateAInstruction labels line = case parseAInstruction labels line of
-    Just address -> intToBinary address
-    Nothing -> error "Invalid A-instruction format: " ++ line
+translateAInstruction :: T.SymbolTable -> T.LabelMap -> String -> Int -> (String, T.SymbolTable, Int)
+translateAInstruction symbols labels line nextAddress = case parseAInstruction symbols labels line of
+    Left address -> (intToBinary address, symbols, nextAddress)
+    Right newSymbol ->
+        let updatedSymbols = M.insert newSymbol nextAddress symbols
+        in (intToBinary nextAddress, updatedSymbols, nextAddress + 1)
 
-parseAInstruction :: T.LabelMap -> String -> Maybe Int
-parseAInstruction labels ('@':rest)
-    | all isDigit rest = Just (read rest) -- if is just int value, return int value
-    | otherwise = M.lookup rest labels -- if is not just int value, lookup address in labels
-parseAInstruction _ _ = Nothing
+parseAInstruction :: T.SymbolTable -> T.LabelMap -> String -> Either Int T.Symbol
+parseAInstruction symbols labels ('@':rest)
+    | all isDigit rest = Left (read rest)
+    | otherwise = case M.lookup rest labels of
+        Just address -> Left address
+        Nothing -> case M.lookup rest symbols of
+            Just address -> Left address
+            Nothing -> Right rest
+parseAInstruction _ _ _ = error "Invalid A-instruction format"
 
 translateCInstruction :: String -> String
 translateCInstruction line = "111" ++ compBits ++ destBits ++ jumpBits

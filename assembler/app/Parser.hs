@@ -24,9 +24,10 @@ extractLabels contentLines = M.fromList $ collectLabels contentLines 0 0
     isLabel line = head line == '(' && last line == ')'
 
 purify :: [String] -> [String]
-purify = filter (not . isCommentOrEmpty) . map trim
-    where isCommentOrEmpty line = isComment line || isEmptyLine line
-
+purify = filter (not . isLabel) . filter (not . isCommentOrEmpty) . map trim
+    where
+        isCommentOrEmpty line = isComment line || isEmptyLine line
+        isLabel line = head line == '(' && last line == ')'
 -- private and helper functions
 
 parseLabel :: String -> Maybe T.Label
