@@ -3,7 +3,7 @@ module Main where
 import System.Environment (getArgs, withArgs)
 import System.Directory (doesFileExist)
 
-import qualified Parser (extractLabels, purify)
+import qualified Parser (extractLabels, purify, removeLabels)
 import qualified SymbolTable (createSymbolTable)
 import qualified Code (translate)
 
@@ -30,11 +30,10 @@ main = getArgs >>= handleArgs
 assemble :: [String] -> String -> IO ()
 assemble content filename =
     let labels = Parser.extractLabels content
-        contentWithoutLabels = Parser.purify content
+        contentWithoutLabels = Parser.removeLabels content
         symbols = SymbolTable.createSymbolTable
         binary = Code.translate symbols labels contentWithoutLabels [] 16
     in do
-        -- print labels
         writeFile (createOutPath filename) (unlines binary)
         print $ "Binary output written to " ++ createOutPath filename
 
