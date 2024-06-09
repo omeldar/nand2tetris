@@ -5,7 +5,6 @@ import System.Directory (doesFileExist)
 
 import qualified Parser (extractLabels, purify)
 import qualified SymbolTable (createSymbolTable)
-import qualified Types as T
 import qualified Code (translate)
 
 processFile :: String -> IO ()
@@ -30,15 +29,12 @@ main = getArgs >>= handleArgs
 
 assemble :: [String] -> String -> IO ()
 assemble content filename =
-    let labels = getLabels content
+    let labels = Parser.extractLabels content
         symbols = SymbolTable.createSymbolTable
         binary = Code.translate symbols labels content [] 16
     in do
         writeFile (createOutPath filename) (unlines binary)
         print $ "Binary output written to " ++ createOutPath filename
-
-getLabels :: [String] -> T.SymbolTable
-getLabels = Parser.extractLabels
 
 createOutPath :: String -> String
 createOutPath filename = baseName ++ ".hack"
