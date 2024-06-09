@@ -13,8 +13,8 @@ processFile filename = do
     if fileExists
         then do
             contents <- readFile filename
-            let contentInLines = lines contents
-            assemble contentInLines filename
+            let purifiedContent = Parser.purify $ lines contents
+            assemble purifiedContent filename
         else
             putStrLn $ "File " ++ filename ++ " does not exist."
 
@@ -30,10 +30,11 @@ main = getArgs >>= handleArgs
 assemble :: [String] -> String -> IO ()
 assemble content filename =
     let labels = Parser.extractLabels content
-        purifiedContent = Parser.purify content
+        contentWithoutLabels = Parser.purify content
         symbols = SymbolTable.createSymbolTable
-        binary = Code.translate symbols labels purifiedContent [] 16
+        binary = Code.translate symbols labels contentWithoutLabels [] 16
     in do
+        -- print labels
         writeFile (createOutPath filename) (unlines binary)
         print $ "Binary output written to " ++ createOutPath filename
 

@@ -1,6 +1,7 @@
 module Parser (
     extractLabels,
-    purify
+    purify,
+    removeLabels
 ) where
 
 import Data.Char
@@ -8,8 +9,6 @@ import Data.List (isPrefixOf)
 
 import qualified Types as T
 import qualified Data.Map as M
-
-import Debug.Trace (trace)
 
 -- exposed functions
 
@@ -19,20 +18,23 @@ extractLabels contentLines = M.fromList $ collectLabels contentLines 0 0
     collectLabels :: [String] -> Int -> Int -> [(T.Label, Int)]
     collectLabels [] _ _ = []
     collectLabels (line:rest) lineNumber instructionAddress
-        | isEmptyLine line = collectLabels rest (lineNumber + 1) instructionAddress -- can happen because purify happens after this
         | isLabel line = case parseLabel (trim line) of
             Just label -> (label, instructionAddress) : collectLabels rest (lineNumber + 1) instructionAddress
-            Nothing -> collectLabels rest (lineNumber + 1) instructionAddress
+            Nothing -> error $ "Parsing label failed for line: " ++ line
         | otherwise = collectLabels rest (lineNumber + 1) (instructionAddress + 1)
 
-    isLabel line = head line == '(' && last line == ')'
-
 purify :: [String] -> [String]
-purify = filter (not . isLabel) . filter (not . isCommentOrEmpty) . map trim
+purify = filter (not . isCommentOrEmpty) . map trim
     where
         isCommentOrEmpty line = isComment line || isEmptyLine line
-        isLabel line = head line == '(' && last line == ')'
+
+removeLabels :: [String] -> [String]
+removeLabels = filter (not . isLabel) . map trim
+
 -- private and helper functions
+
+isLabel :: [Char] -> Bool
+isLabel line = head line == '(' && last line == ')'
 
 parseLabel :: String -> Maybe T.Label
 parseLabel line
