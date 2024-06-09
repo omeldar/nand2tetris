@@ -4,7 +4,7 @@ module Parser (
     removeLabels
 ) where
 
-import Data.Char
+import Data.Char ( isSpace )
 import Data.List (isPrefixOf)
 
 import qualified Types as T
