@@ -9,6 +9,8 @@ import Data.List (isPrefixOf)
 import qualified Types as T
 import qualified Data.Map as M
 
+import Debug.Trace (trace)
+
 -- exposed functions
 
 extractLabels :: [String] -> T.LabelMap
@@ -17,7 +19,7 @@ extractLabels contentLines = M.fromList $ collectLabels contentLines 0 0
     collectLabels :: [String] -> Int -> Int -> [(T.Label, Int)]
     collectLabels [] _ _ = []
     collectLabels (line:rest) lineNumber instructionAddress
-        | isLabel line = case parseLabel line of
+        | trace line isLabel line = case parseLabel (trim line) of
             Just label -> (label, instructionAddress) : collectLabels rest (lineNumber + 1) instructionAddress
             Nothing -> collectLabels rest (lineNumber + 1) instructionAddress
         | otherwise = collectLabels rest (lineNumber + 1) (instructionAddress + 1)
