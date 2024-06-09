@@ -34,7 +34,6 @@ assemble content filename =
         symbols = SymbolTable.createSymbolTable
         binary = Code.translate symbols labels purifiedContent [] 16
     in do
-        print labels
         writeFile (createOutPath filename) (unlines binary)
         print $ "Binary output written to " ++ createOutPath filename
 
