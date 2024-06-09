@@ -8,7 +8,7 @@ import qualified Types as T
 import qualified Data.Map as M
 
 translate :: T.SymbolTable -> T.LabelMap -> [String] -> [String] -> Int -> [String]
-translate _ _ [] binary _ = reverse binary
+translate _ _ [] binary _ = binary
 translate symbols labels (line:rest) binary nextAddress =
     let (newBinary, newSymbols, newNextAddress) = translateLine symbols labels line binary nextAddress
     in translate newSymbols labels rest newBinary newNextAddress
